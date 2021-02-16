@@ -26,7 +26,7 @@ void InitDead()
 		if (mtypes[Monsters[i].mtype] == 0) {
 			for (d = 0; d < 8; d++)
 				dead[nd]._deadData[d] = Monsters[i].Anims[MA_DEATH].Data[d];
-			dead[nd]._deadFrame = Monsters[i].Anims[MA_DEATH].Frames;
+			dead[nd]._verydeadFrame = Monsters[i].Anims[MA_DEATH].Frames;
 			dead[nd]._deadWidth = Monsters[i].width;
 			dead[nd]._deadWidth2 = Monsters[i].width2;
 			dead[nd]._deadtrans = 0;
