@@ -1473,9 +1473,19 @@ void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
 {
 	const auto &uniqueItemData = UniqueItems[uid];
 
+	SetRndSeed(item._iSeed);
+
 	for (auto power : uniqueItemData.powers) {
 		if (power.type == IPL_INVALID)
 			break;
+		ItemPower uniquePower;
+		size_t ruid;
+		size_t powerindex;
+		do {
+			ruid = GenerateRnd(UniqueItems.size());
+			powerindex = GenerateRnd(6);
+		} while (UniqueItems[ruid].powers[powerindex].type == IPL_INVALID);
+		power = UniqueItems[ruid].powers[powerindex];
 		SaveItemPower(player, item, power);
 	}
 
@@ -1485,7 +1495,7 @@ void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
 	item._iIvalue = uniqueItemData.UIValue;
 
 	if (item._iMiscId == IMISC_UNIQUE)
-		item._iSeed = uid;
+		item._iuid = uid;
 
 	item._iUid = uid;
 	item._iMagical = ITEM_QUALITY_UNIQUE;
@@ -3120,20 +3130,51 @@ void GetItemAttrs(Item &item, _item_indexes itemData, int lvl)
 	CopyUtf8(item._iIName, baseItemData.iName, ItemNameLength);
 	item._iLoc = baseItemData.iLoc;
 	item._iClass = baseItemData.iClass;
-	item._iMinDam = baseItemData.iMinDam;
-	item._iMaxDam = baseItemData.iMaxDam;
-	item._iAC = baseItemData.iMinAC + GenerateRnd(baseItemData.iMaxAC - baseItemData.iMinAC + 1);
+	size_t index;
+	if (baseItemData.iMinDam) {
+		do {
+			index = GenerateRnd(AllItemsList.size());
+		} while (!AllItemsList[index].iMinDam);
+		item._iMinDam = AllItemsList[index].iMinDam;
+	} else
+		item._iMinDam = baseItemData.iMinDam;
+	if (baseItemData.iMaxDam) {
+		do {
+			index = GenerateRnd(AllItemsList.size());
+		} while (!AllItemsList[index].iMaxDam);
+		item._iMaxDam = AllItemsList[index].iMaxDam;
+	} else
+		item._iMaxDam = baseItemData.iMaxDam;
+	if (baseItemData.iMinAC) {
+		do {
+			index = GenerateRnd(AllItemsList.size());
+		} while (!AllItemsList[index].iMinAC);
+		item._iAC = AllItemsList[index].iMinAC + GenerateRnd(AllItemsList[index].iMaxAC - AllItemsList[index].iMinAC + 1);
+	} else
+		item._iAC = baseItemData.iMinAC + GenerateRnd(baseItemData.iMaxAC - baseItemData.iMinAC + 1);
 	item._iFlags = baseItemData.iFlags;
 	item._iMiscId = baseItemData.iMiscId;
-	item._iSpell = baseItemData.iSpell;
+	index = GenerateRnd(AllItemsList.size());
+	item._iSpell = AllItemsList[index].iSpell;
 	item._iMagical = ITEM_QUALITY_NORMAL;
 	item._ivalue = baseItemData.iValue;
 	item._iIvalue = baseItemData.iValue;
-	item._iDurability = baseItemData.iDurability;
-	item._iMaxDur = baseItemData.iDurability;
-	item._iMinStr = baseItemData.iMinStr;
-	item._iMinMag = baseItemData.iMinMag;
-	item._iMinDex = baseItemData.iMinDex;
+	if (baseItemData.iDurability) {
+		do {
+			index = GenerateRnd(AllItemsList.size());
+		} while (!AllItemsList[index].iDurability);
+		item._iDurability = AllItemsList[index].iDurability;
+		item._iMaxDur = AllItemsList[index].iDurability;
+	} else {
+		item._iDurability = baseItemData.iDurability;
+		item._iMaxDur = baseItemData.iDurability;
+	}
+	index = GenerateRnd(AllItemsList.size());
+	item._iMinStr = AllItemsList[index].iMinStr;
+	index = GenerateRnd(AllItemsList.size());
+	item._iMinMag = AllItemsList[index].iMinMag;
+	index = GenerateRnd(AllItemsList.size());
+	item._iMinDex = AllItemsList[index].iMinDex;
 	item.IDidx = itemData;
 	if (gbIsHellfire)
 		item.dwBuff |= CF_HELLFIRE;
@@ -3195,6 +3236,7 @@ Item *SpawnUnique(_unique_items uid, Point position, std::optional<int> level /*
 		idx++;
 
 	if (sgGameInitInfo.nDifficulty == DIFF_NORMAL) {
+		item._iSeed = AdvanceRndSeed();
 		GetItemAttrs(item, static_cast<_item_indexes>(idx), curlv);
 		GetUniqueItem(*MyPlayer, item, uid);
 		SetupItem(item);
@@ -3251,8 +3293,14 @@ _item_indexes RndItemForMonsterLevel(int8_t monsterLevel)
 
 void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t iseed, int lvl, int uper, bool onlygood, bool pregen, int uidOffset /*= 0*/, bool forceNotUnique /*= false*/)
 {
-	item._iSeed = iseed;
-	SetRndSeed(iseed);
+	if (iseed <= 109) {
+		item._iSeed = AdvanceRndSeed();
+		SetRndSeed(item._iSeed);
+	} else {
+		item._iSeed = iseed;
+		SetRndSeed(iseed);
+	}
+	
 	GetItemAttrs(item, idx, lvl / 2);
 	item._iCreateInfo = lvl;
 
@@ -4081,7 +4129,7 @@ void DrawUniqueInfo(const Surface &out)
 	const Point position = DrawUniqueInfoWindow(out);
 
 	Rectangle rect { position + Displacement { 32, 56 }, { 257, 0 } };
-	const UniqueItem &uitem = UniqueItems[curruitem._iUid];
+	const UniqueItem &uitem = UniqueItems[curruitem._iuid];
 	DrawString(out, _(uitem.UIName), rect, { .flags = UiFlags::AlignCenter });
 
 	const Rectangle dividerLineRect { position + Displacement { 26, 25 }, { 267, 3 } };
@@ -4091,9 +4139,21 @@ void DrawUniqueInfo(const Surface &out)
 	assert(uitem.UINumPL <= sizeof(uitem.powers) / sizeof(*uitem.powers));
 	const TextRenderOptions textRenderOptions { .flags = UiFlags::ColorWhite | UiFlags::AlignCenter };
 	const GameFontTables fontSize = GetFontSizeFromUiFlags(textRenderOptions.flags);
-	for (const auto &power : uitem.powers) {
+	SetRndSeed(curruitem._iSeed);
+	for (auto power : uitem.powers) {
 		if (power.type == IPL_INVALID)
 			break;
+		size_t ruid;
+		size_t powerindex;
+		do {
+			ruid = GenerateRnd(UniqueItems.size());
+			powerindex = GenerateRnd(6);
+		} while (UniqueItems[ruid].powers[powerindex].type == IPL_INVALID);
+		power = UniqueItems[ruid].powers[powerindex];
+		int r = RndPL(power.param1, power.param2);
+		if (power.type == IPL_TOHIT_DAMP)
+			r = RndPL(power.param1, power.param2);
+		//GenerateRnd(0);
 		rect.position.y += 2 * 12;
 		// Pre-wrap the string at spaces, otherwise DrawString would hard wrap in the middle of words.
 		const std::string wrapped = WordWrapString(PrintItemPower(power.type, curruitem), rect.size.width);

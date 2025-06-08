@@ -3710,9 +3710,27 @@ tl::expected<void, std::string> InitObjectGFX()
 		}
 	}
 
+	uint8_t simulatedFloor;
+	switch (leveltype) {
+	case DTYPE_CATHEDRAL:
+		simulatedFloor = 1;
+		break;
+	case DTYPE_CATACOMBS:
+		simulatedFloor = 5;
+		break;
+	case DTYPE_CAVES:
+		simulatedFloor = 9;
+		break;
+	case DTYPE_HELL:
+		simulatedFloor = 13;
+		break;
+	default:
+		simulatedFloor = currlevel;
+		break;
+	}
 	for (size_t id = 0, n = AllObjects.size(); id < n; ++id) {
 		const ObjectData &objectData = AllObjects[id];
-		if (objectData.minlvl != 0 && currlevel >= objectData.minlvl && currlevel <= objectData.maxlvl) {
+		if (objectData.minlvl != 0 && simulatedFloor >= objectData.minlvl && simulatedFloor <= objectData.maxlvl) {
 			if (IsAnyOf(static_cast<_object_id>(id), OBJ_TRAPL, OBJ_TRAPR) && leveltype == DTYPE_HELL) {
 				continue;
 			}

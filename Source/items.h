@@ -188,6 +188,7 @@ struct Player;
 struct Item {
 	/** Randomly generated identifier */
 	uint32_t _iSeed = 0;
+	uint32_t _iuid = 0;
 	uint16_t _iCreateInfo = 0;
 	ItemType _itype = ItemType::None;
 	bool _iAnimFlag = false;

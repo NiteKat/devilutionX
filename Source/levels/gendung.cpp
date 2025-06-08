@@ -68,6 +68,7 @@ int8_t dObject[MAXDUNX][MAXDUNY];
 int8_t dSpecial[MAXDUNX][MAXDUNY];
 int themeCount;
 THEME_LOC themeLoc[MAXTHEMES];
+uint32_t DungeonSeeds[NUMLEVELS];
 
 namespace {
 
@@ -386,6 +387,10 @@ std::optional<WorldTileSize> GetSizeForThemeRoom()
 
 dungeon_type GetLevelType(int level)
 {
+	if (level > 0) {
+		SetRndSeed(DungeonSeeds[level]);
+		return static_cast<dungeon_type>(GenerateRnd(4) + 1);
+	}
 	if (level == 0)
 		return DTYPE_TOWN;
 	if (level <= 4)

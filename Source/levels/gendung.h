@@ -35,6 +35,10 @@ namespace devilution {
 #define MAXTHEMES 50
 #define MAXTILES 1379
 
+#define NUMLEVELS 25
+
+extern uint32_t DungeonSeeds[NUMLEVELS];
+
 enum _setlevels : int8_t {
 	SL_NONE,
 	SL_SKELKING,
