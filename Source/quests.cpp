@@ -46,6 +46,9 @@ Point ReturnLvlPosition;
 dungeon_type ReturnLevelType;
 int ReturnLevel;
 
+int questFloors[MAXQUESTS];
+bool goldenElixirSpawned = false;
+
 /** Contains the data related to each quest_id. */
 QuestData QuestsData[] = {
 	// clang-format off
@@ -260,6 +263,14 @@ void InitQuests()
 			quest._qactive = QUEST_NOTAVAIL;
 		}
 	}
+
+	/* Quests[Q_BUTCHER]._qactive = QUEST_NOTAVAIL;
+	Quests[Q_PWATER]._qactive = QUEST_NOTAVAIL;
+	Quests[Q_SKELKING]._qactive = QUEST_NOTAVAIL;
+	Quests[Q_GARBUD]._qactive = QUEST_NOTAVAIL;
+	Quests[Q_LTBANNER]._qactive = QUEST_NOTAVAIL;
+	Quests[Q_ROCK]._qactive = QUEST_NOTAVAIL;
+	Quests[Q_BLOOD]._qactive = QUEST_NOTAVAIL;*/
 
 	if (Quests[Q_SKELKING]._qactive == QUEST_NOTAVAIL)
 		Quests[Q_SKELKING]._qvar2 = 2;
@@ -934,7 +945,12 @@ bool Quest::IsAvailable()
 {
 	if (setlevel)
 		return false;
-	if (currlevel != _qlevel)
+	if ((_qlevel > 4 && leveltype == DTYPE_CATHEDRAL)
+	    || ((_qlevel < 5 || _qlevel > 8) && leveltype == DTYPE_CATACOMBS)
+	    || ((_qlevel < 9 || _qlevel > 12) && leveltype == DTYPE_CAVES)
+	    || (_qlevel < 13 && leveltype == DTYPE_HELL))
+		return false;
+	if (questFloors[_qidx] > 0 && currlevel != questFloors[_qidx])
 		return false;
 	if (_qactive == QUEST_NOTAVAIL)
 		return false;

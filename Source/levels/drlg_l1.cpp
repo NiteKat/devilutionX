@@ -387,10 +387,13 @@ void InitSetPiece()
 	std::unique_ptr<uint16_t[]> setPieceData;
 	if (Quests[Q_BUTCHER].IsAvailable()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l1data\\rnd6.dun");
+		questFloors[Q_BUTCHER] = currlevel;
 	} else if (Quests[Q_SKELKING].IsAvailable() && !UseMultiplayerQuests()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l1data\\skngdo.dun");
+		questFloors[Q_SKELKING] = currlevel;
 	} else if (Quests[Q_LTBANNER].IsAvailable()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l1data\\banner2.dun");
+		questFloors[Q_LTBANNER] = currlevel;
 	} else {
 		return; // no setpiece needed for this level
 	}

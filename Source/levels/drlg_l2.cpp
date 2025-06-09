@@ -1636,10 +1636,13 @@ void InitSetPiece()
 
 	if (Quests[Q_BLIND].IsAvailable()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l2data\\blind1.dun");
+		questFloors[Q_BLIND] = currlevel;
 	} else if (Quests[Q_BLOOD].IsAvailable()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l2data\\blood1.dun");
+		questFloors[Q_BLOOD] = currlevel;
 	} else if (Quests[Q_SCHAMB].IsAvailable()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l2data\\bonestr2.dun");
+		questFloors[Q_SCHAMB] = currlevel;
 	} else {
 		return; // no setpiece needed for this level
 	}

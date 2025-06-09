@@ -3320,20 +3320,29 @@ tl::expected<void, std::string> GetLevelMTypes()
 	if (!setlevel) {
 		if (Quests[Q_BUTCHER].IsAvailable())
 			RETURN_IF_ERROR(AddMonsterType(MT_CLEAVER, PLACE_SPECIAL));
-		if (Quests[Q_GARBUD].IsAvailable())
+		if (Quests[Q_GARBUD].IsAvailable()) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::Garbud, PLACE_UNIQUE));
-		if (Quests[Q_ZHAR].IsAvailable())
+			questFloors[Q_GARBUD] = currlevel;
+		}
+		if (Quests[Q_ZHAR].IsAvailable()) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::Zhar, PLACE_UNIQUE));
+			questFloors[Q_ZHAR] = currlevel;
+		}
 		if (Quests[Q_LTBANNER].IsAvailable())
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::SnotSpill, PLACE_UNIQUE));
-		if (Quests[Q_VEIL].IsAvailable())
+		if (Quests[Q_VEIL].IsAvailable()) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::Lachdan, PLACE_UNIQUE));
-		if (Quests[Q_WARLORD].IsAvailable())
+			questFloors[Q_VEIL] = currlevel;
+		}
+		if (Quests[Q_WARLORD].IsAvailable()) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::WarlordOfBlood, PLACE_UNIQUE));
+			questFloors[Q_WARLORD] = currlevel;
+		}
 
-		if (UseMultiplayerQuests() && currlevel == Quests[Q_SKELKING]._qlevel) {
+		if (UseMultiplayerQuests() && Quests[Q_SKELKING].IsAvailable()) {
 
 			RETURN_IF_ERROR(AddMonsterType(MT_SKING, PLACE_UNIQUE));
+			questFloors[Q_SKELKING] = currlevel;
 
 			int skeletonTypeCount = 0;
 			_monster_id skeltypes[NUM_MTYPES];

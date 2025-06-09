@@ -20,6 +20,8 @@
 namespace devilution {
 
 #define MAXQUESTS 24
+extern int questFloors[MAXQUESTS];
+extern bool goldenElixirSpawned;
 
 /** States of the mushroom quest */
 enum {

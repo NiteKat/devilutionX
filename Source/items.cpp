@@ -2476,10 +2476,14 @@ void InitItems()
 			SpawnQuestItem(IDI_GREYSUIT, { 25, 25 }, 3, SelectionRegion::Bottom, false);
 		// In multiplayer items spawn during level generation to avoid desyncs
 		if (gbIsMultiplayer) {
-			if (Quests[Q_MUSHROOM].IsAvailable())
+			if (Quests[Q_MUSHROOM].IsAvailable()) {
 				SpawnQuestItem(IDI_FUNGALTM, { 0, 0 }, 5, SelectionRegion::Bottom, false);
-			if (currlevel == Quests[Q_VEIL]._qlevel + 1 && Quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
+				questFloors[Q_MUSHROOM] = currlevel;
+			}
+			if (questFloors[Q_VEIL] != 0 && currlevel > questFloors[Q_VEIL] && Quests[Q_VEIL]._qactive != QUEST_NOTAVAIL && !goldenElixirSpawned) {
 				SpawnQuestItem(IDI_GLDNELIX, { 0, 0 }, 5, SelectionRegion::Bottom, false);
+				goldenElixirSpawned = true;
+			}
 		}
 		if (currlevel > 0 && currlevel < 16)
 			AddInitItems();
