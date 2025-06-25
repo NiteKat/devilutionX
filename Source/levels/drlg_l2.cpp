@@ -1634,15 +1634,12 @@ void InitSetPiece()
 {
 	std::unique_ptr<uint16_t[]> setPieceData;
 
-	if (Quests[Q_BLIND].IsAvailable()) {
+	if (questFloors[Q_BLIND] == currlevel) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l2data\\blind1.dun");
-		questFloors[Q_BLIND] = currlevel;
-	} else if (Quests[Q_BLOOD].IsAvailable()) {
+	} else if (questFloors[Q_BLOOD] == currlevel) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l2data\\blood1.dun");
-		questFloors[Q_BLOOD] = currlevel;
-	} else if (Quests[Q_SCHAMB].IsAvailable()) {
+	} else if (questFloors[Q_SCHAMB] == currlevel) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l2data\\bonestr2.dun");
-		questFloors[Q_SCHAMB] = currlevel;
 	} else {
 		return; // no setpiece needed for this level
 	}
@@ -2675,6 +2672,41 @@ void GenerateLevel(lvl_entry entry)
 {
 	if (LevelSeeds[currlevel])
 		SetRndSeed(*LevelSeeds[currlevel]);
+
+	if (Quests[Q_ROCK].IsAvailable()
+		&& !questFloors[Q_ROCK]) {
+		Quests[Q_ROCK]._qlevel = currlevel;
+		questFloors[Q_ROCK] = currlevel;
+	}
+	if (Quests[Q_BLOOD].IsAvailable()
+	    && !questFloors[Q_BLOOD]) {
+		Quests[Q_BLOOD]._qlevel = currlevel;
+		questFloors[Q_BLOOD] = currlevel;
+	}
+	if (Quests[Q_SCHAMB].IsAvailable()
+	    && !questFloors[Q_SCHAMB]
+	    && questFloors[Q_ROCK] != currlevel
+	    && questFloors[Q_BLOOD] != currlevel) {
+		Quests[Q_SCHAMB]._qlevel = currlevel;
+		questFloors[Q_SCHAMB] = currlevel;
+	}
+	if (Quests[Q_BLIND].IsAvailable()
+		&& !questFloors[Q_BLIND]
+		&& questFloors[Q_ROCK] != currlevel
+		&& questFloors[Q_BLOOD] != currlevel
+		&& questFloors[Q_SCHAMB] != currlevel) {
+		Quests[Q_BLIND]._qlevel = currlevel;
+		questFloors[Q_BLIND] = currlevel;
+	}
+	if (Quests[Q_ZHAR].IsAvailable()
+	    && !questFloors[Q_ZHAR]
+	    && questFloors[Q_ROCK] != currlevel
+	    && questFloors[Q_BLOOD] != currlevel
+	    && questFloors[Q_SCHAMB] != currlevel
+			&& questFloors[Q_BLIND] != currlevel) {
+		Quests[Q_ZHAR]._qlevel = currlevel;
+		questFloors[Q_ZHAR] = currlevel;
+	}
 
 	while (true) {
 		LevelSeeds[currlevel] = GetLCGEngineState();

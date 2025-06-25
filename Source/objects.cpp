@@ -3829,7 +3829,7 @@ void InitObjects()
 		AddDiabObjs();
 	} else {
 		DiscardRandomValues(1);
-		if (currlevel == 9 && !UseMultiplayerQuests())
+		if (questFloors[23]  && currlevel == questFloors[23] && !UseMultiplayerQuests())
 			AddSlainHero();
 		if (Quests[Q_MUSHROOM].IsAvailable())
 			AddMushPatch();

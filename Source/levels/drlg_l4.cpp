@@ -1143,6 +1143,25 @@ void GenerateLevel(lvl_entry entry)
 	if (LevelSeeds[currlevel])
 		SetRndSeed(*LevelSeeds[currlevel]);
 
+	if (currlevel < 15
+		&& Quests[Q_WARLORD].IsAvailable()
+		&& !questFloors[Q_WARLORD]) {
+		Quests[Q_WARLORD]._qlevel = currlevel;
+		questFloors[Q_WARLORD] = currlevel;
+	}
+	if (currlevel < 15
+		&& Quests[Q_VEIL].IsAvailable()
+	  && !questFloors[Q_VEIL]) {
+		Quests[Q_WARLORD]._qlevel = currlevel;
+		questFloors[Q_WARLORD] = currlevel;
+	}
+	if (!questFloors[Q_BETRAYER]) {
+		questFloors[Q_BETRAYER] = 15;
+	}
+	if (!questFloors[Q_DIABLO]) {
+		questFloors[Q_DIABLO] = 16;
+	}
+
 	while (true) {
 		DRLG_InitTrans();
 

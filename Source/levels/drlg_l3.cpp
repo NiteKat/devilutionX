@@ -1993,6 +1993,22 @@ void GenerateLevel(lvl_entry entry)
 	if (LevelSeeds[currlevel])
 		SetRndSeed(*LevelSeeds[currlevel]);
 
+	if (Quests[Q_MUSHROOM].IsAvailable()
+	  && !questFloors[Q_MUSHROOM]) {
+		Quests[Q_MUSHROOM]._qlevel = currlevel;
+		questFloors[Q_MUSHROOM] = currlevel;
+	}
+	if (!questFloors[23]) {
+		questFloors[23] = currlevel;
+	}
+	if (Quests[Q_ANVIL].IsAvailable()
+	    && !questFloors[Q_ANVIL]
+	    && questFloors[Q_MUSHROOM] != currlevel
+	    && questFloors[23] != currlevel) {
+		Quests[Q_ANVIL]._qlevel = currlevel;
+		questFloors[Q_ANVIL] = currlevel;
+	}
+
 	while (true) {
 		LevelSeeds[currlevel] = GetLCGEngineState();
 		InitDungeonFlags();
@@ -2022,7 +2038,7 @@ void GenerateLevel(lvl_entry entry)
 		MakeMegas();
 		if (!PlaceStairs(entry))
 			continue;
-		if (Quests[Q_ANVIL].IsAvailable() && !PlaceAnvil())
+		if (currlevel == questFloors[Q_ANVIL] && !PlaceAnvil())
 			continue;
 		if (PlacePool())
 			break;

@@ -1759,8 +1759,8 @@ size_t OnSpellTile(const TCmdLocParam3 &message, Player &player)
 		return sizeof(message);
 	if (!player.isOnActiveLevel())
 		return sizeof(message);
-	if (leveltype == DTYPE_TOWN)
-		return sizeof(message);
+	/*if (leveltype == DTYPE_TOWN)
+		return sizeof(message);*/
 	if (!InDungeonBounds(position))
 		return sizeof(message);
 

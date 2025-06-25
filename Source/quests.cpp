@@ -950,8 +950,6 @@ bool Quest::IsAvailable()
 	    || ((_qlevel < 9 || _qlevel > 12) && leveltype == DTYPE_CAVES)
 	    || (_qlevel < 13 && leveltype == DTYPE_HELL))
 		return false;
-	if (questFloors[_qidx] > 0 && currlevel != questFloors[_qidx])
-		return false;
 	if (_qactive == QUEST_NOTAVAIL)
 		return false;
 	if (QuestsData[_qidx].isSinglePlayerOnly && UseMultiplayerQuests())

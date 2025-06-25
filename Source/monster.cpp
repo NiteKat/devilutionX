@@ -166,6 +166,10 @@ void InitMonster(Monster &monster, Direction rd, size_t typeIndex, Point positio
 	if (!gbIsMultiplayer)
 		monster.maxHitPoints = std::max(monster.maxHitPoints / 2, 64);
 
+	int floorDif = currlevel - monster.data().minDunLvl;
+	int statMult = floorDif == 0 ? 64 : 64 + floorDif * 4;
+
+	monster.maxHitPoints = std::max((monster.maxHitPoints * statMult) >> 6, 64);
 	monster.hitPoints = monster.maxHitPoints;
 	monster.ai = monster.data().ai;
 	monster.intelligence = monster.data().intelligence;
@@ -182,11 +186,11 @@ void InitMonster(Monster &monster, Direction rd, size_t typeIndex, Point positio
 	monster.rndItemSeed = AdvanceRndSeed();
 	monster.aiSeed = AdvanceRndSeed();
 	monster.whoHit = 0;
-	monster.minDamage = monster.data().minDamage;
-	monster.maxDamage = monster.data().maxDamage;
-	monster.minDamageSpecial = monster.data().minDamageSpecial;
-	monster.maxDamageSpecial = monster.data().maxDamageSpecial;
-	monster.armorClass = monster.data().armorClass;
+	monster.minDamage = std::max((monster.data().minDamage * statMult) >> 6, 1);
+	monster.maxDamage = std::max((monster.data().maxDamage * statMult) >> 6, 1);
+	monster.minDamageSpecial = std::max((monster.data().minDamageSpecial * statMult) >> 6, 1);
+	monster.maxDamageSpecial = std::max((monster.data().maxDamageSpecial * statMult) >> 6, 1);
+	monster.armorClass = std::max((monster.data().armorClass * statMult) >> 6, 1);
 	monster.resistance = monster.data().resistance;
 	monster.leader = Monster::NoLeader;
 	monster.leaderRelation = LeaderRelation::None;
@@ -3040,6 +3044,8 @@ bool IsMonsterAvailable(const MonsterData &monsterData)
 	if (gbIsSpawn && monsterData.availability == MonsterAvailability::Retail)
 		return false;
 
+	return true;
+
 	return currlevel >= monsterData.minDunLvl && currlevel <= monsterData.maxDunLvl;
 }
 
@@ -3318,31 +3324,26 @@ tl::expected<void, std::string> GetLevelMTypes()
 	}
 
 	if (!setlevel) {
-		if (Quests[Q_BUTCHER].IsAvailable())
+		if (questFloors[Q_BUTCHER] == currlevel)
 			RETURN_IF_ERROR(AddMonsterType(MT_CLEAVER, PLACE_SPECIAL));
-		if (Quests[Q_GARBUD].IsAvailable()) {
+		if (questFloors[Q_GARBUD] == currlevel) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::Garbud, PLACE_UNIQUE));
-			questFloors[Q_GARBUD] = currlevel;
 		}
-		if (Quests[Q_ZHAR].IsAvailable()) {
+		if (questFloors[Q_ZHAR] == currlevel) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::Zhar, PLACE_UNIQUE));
-			questFloors[Q_ZHAR] = currlevel;
 		}
-		if (Quests[Q_LTBANNER].IsAvailable())
+		if (questFloors[Q_LTBANNER] == currlevel)
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::SnotSpill, PLACE_UNIQUE));
-		if (Quests[Q_VEIL].IsAvailable()) {
+		if (questFloors[Q_VEIL] == currlevel) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::Lachdan, PLACE_UNIQUE));
-			questFloors[Q_VEIL] = currlevel;
 		}
-		if (Quests[Q_WARLORD].IsAvailable()) {
+		if (questFloors[Q_WARLORD] == currlevel) {
 			RETURN_IF_ERROR(AddMonsterType(UniqueMonsterType::WarlordOfBlood, PLACE_UNIQUE));
-			questFloors[Q_WARLORD] = currlevel;
 		}
 
 		if (UseMultiplayerQuests() && Quests[Q_SKELKING].IsAvailable()) {
 
 			RETURN_IF_ERROR(AddMonsterType(MT_SKING, PLACE_UNIQUE));
-			questFloors[Q_SKELKING] = currlevel;
 
 			int skeletonTypeCount = 0;
 			_monster_id skeltypes[NUM_MTYPES];

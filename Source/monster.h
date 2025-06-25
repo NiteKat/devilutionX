@@ -398,6 +398,11 @@ struct Monster { // note: missing field _mAFNum
 			}
 		}
 
+		int floorDif = currlevel - data().minDunLvl;
+		int statMult = floorDif == 0 ? 64 : 64 + floorDif * 4;
+		baseLevel = (baseLevel * statMult) >> 6;
+		if (baseLevel < 1)
+			baseLevel = 1;
 		if (difficulty == DIFF_NIGHTMARE) {
 			baseLevel += 15;
 		} else if (difficulty == DIFF_HELL) {

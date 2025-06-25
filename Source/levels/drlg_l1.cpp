@@ -385,15 +385,12 @@ void FillFloor()
 void InitSetPiece()
 {
 	std::unique_ptr<uint16_t[]> setPieceData;
-	if (Quests[Q_BUTCHER].IsAvailable()) {
+	if (questFloors[Q_BUTCHER] == currlevel) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l1data\\rnd6.dun");
-		questFloors[Q_BUTCHER] = currlevel;
-	} else if (Quests[Q_SKELKING].IsAvailable() && !UseMultiplayerQuests()) {
+	} else if (questFloors[Q_SKELKING] == currlevel && !UseMultiplayerQuests()) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l1data\\skngdo.dun");
-		questFloors[Q_SKELKING] = currlevel;
-	} else if (Quests[Q_LTBANNER].IsAvailable()) {
+	} else if (questFloors[Q_LTBANNER] == currlevel) {
 		setPieceData = LoadFileInMem<uint16_t>("levels\\l1data\\banner2.dun");
-		questFloors[Q_LTBANNER] = currlevel;
 	} else {
 		return; // no setpiece needed for this level
 	}
@@ -1172,6 +1169,39 @@ void GenerateLevel(lvl_entry entry)
 	if (LevelSeeds[currlevel])
 		SetRndSeed(*LevelSeeds[currlevel]);
 
+	if (Quests[Q_BUTCHER].IsAvailable()
+	  && !questFloors[Q_BUTCHER]) {
+		Quests[Q_BUTCHER]._qlevel = currlevel;
+		questFloors[Q_BUTCHER] = currlevel;
+	}
+	if (Quests[Q_PWATER].IsAvailable()
+		&& !questFloors[Q_PWATER]) {
+		Quests[Q_PWATER]._qlevel = currlevel;
+		questFloors[Q_PWATER] = currlevel;
+	}
+	if (Quests[Q_SKELKING].IsAvailable()
+		&& !questFloors[Q_SKELKING]
+		&& questFloors[Q_BUTCHER] != currlevel
+		&& questFloors[Q_PWATER] != currlevel) {
+		Quests[Q_SKELKING]._qlevel = currlevel;
+		questFloors[Q_SKELKING] = currlevel;
+	}
+	if (Quests[Q_GARBUD].IsAvailable()
+		&& !questFloors[Q_GARBUD]
+		&& questFloors[Q_SKELKING] != currlevel
+		&& questFloors[Q_BUTCHER] != currlevel
+		&& questFloors[Q_PWATER] != currlevel) {
+		Quests[Q_GARBUD]._qlevel = currlevel;
+		questFloors[Q_GARBUD] = currlevel;
+	}
+	if (Quests[Q_LTBANNER].IsAvailable()
+		&& !questFloors[Q_LTBANNER]
+		&& questFloors[Q_SKELKING] != currlevel
+		&& questFloors[Q_BUTCHER] != currlevel
+		&& questFloors[Q_PWATER] != currlevel) {
+		Quests[Q_LTBANNER]._qlevel = currlevel;
+		questFloors[Q_LTBANNER] = currlevel;
+	}
 	size_t minarea = 761;
 	switch (currlevel) {
 	case 1:
