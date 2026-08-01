@@ -55,6 +55,7 @@ set(standalone_tests
   file_util_test
   format_int_test
   ini_test
+  mod_identity_test
   palette_blending_test
   parse_int_test
   path_test
@@ -138,6 +139,8 @@ target_link_dependencies(dun_render_benchmark PRIVATE libdevilutionx_so)
 target_link_dependencies(file_util_test PRIVATE libdevilutionx_file_util app_fatal_for_testing)
 target_link_dependencies(format_int_test PRIVATE libdevilutionx_format_int language_for_testing)
 target_link_dependencies(ini_test PRIVATE libdevilutionx_ini app_fatal_for_testing)
+target_link_dependencies(mod_identity_test PRIVATE libdevilutionx_mod_identity app_fatal_for_testing)
+target_include_directories(mod_identity_test PRIVATE "${PROJECT_SOURCE_DIR}/3rdParty/PicoSHA2")
 target_link_dependencies(light_render_benchmark PRIVATE libdevilutionx_light_render DevilutionX::SDL libdevilutionx_surface libdevilutionx_paths app_fatal_for_testing)
 target_link_dependencies(palette_blending_test PRIVATE libdevilutionx_palette_blending DevilutionX::SDL libdevilutionx_strings GTest::gmock app_fatal_for_testing)
 target_link_dependencies(palette_blending_benchmark
@@ -160,7 +163,6 @@ if(DEVILUTIONX_SCREENSHOT_FORMAT STREQUAL DEVILUTIONX_SCREENSHOT_FORMAT_PNG AND 
     DevilutionX::SDL
     GTest::gmock
     GTest::gtest
-    fmt::fmt
     tl
     app_fatal_for_testing
     language_for_testing

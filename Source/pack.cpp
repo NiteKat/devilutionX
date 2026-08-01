@@ -6,8 +6,7 @@
 #include "pack.h"
 
 #include <cstdint>
-
-#include <fmt/format.h>
+#include <format>
 
 #include "engine/random.hpp"
 #include "game_mode.hpp"
@@ -46,7 +45,7 @@ namespace {
 
 void EventFailedJoinAttempt(const char *playerName)
 {
-	const std::string message = fmt::format("Player '{}' sent invalid player data during attempt to join the game.", playerName);
+	const std::string message = std::format("Player '{}' sent invalid player data during attempt to join the game.", playerName);
 	EventPlrMsg(message);
 }
 
@@ -368,7 +367,7 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 	ClrPlrPath(player);
 	player.destAction = ACTION_NONE;
 
-	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
+	CopyUtf8(player._pName, std::string_view(packed.pName, PlayerNameLength), sizeof(player._pName));
 
 	InitPlayer(player, true);
 
@@ -466,7 +465,7 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 
 bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 {
-	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
+	CopyUtf8(player._pName, std::string_view(packed.pName, PlayerNameLength), sizeof(player._pName));
 
 	ValidateField(packed.pClass, packed.pClass < GetNumPlayerClasses());
 	player._pClass = static_cast<HeroClass>(packed.pClass);

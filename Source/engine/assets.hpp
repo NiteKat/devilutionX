@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <expected>
 #include <functional>
 #include <map>
 #include <span>
@@ -17,10 +18,6 @@
 #include <SDL.h>
 #endif
 
-#include <expected.hpp>
-
-#include <fmt/format.h>
-
 #include "appfat.h"
 #include "game_mode.hpp"
 #include "headless_mode.hpp"
@@ -31,6 +28,7 @@
 #include "utils/string_or_view.hpp"
 
 #ifndef UNPACKED_MPQS
+#include "mods/mod_identity.h"
 #include "mpq/mpq_reader.hpp"
 #endif
 
@@ -297,8 +295,8 @@ struct AssetData {
 	}
 };
 
-tl::expected<AssetData, std::string> LoadAsset(std::string_view path);
-tl::expected<AssetData, std::string> LoadIntegralAsset(std::string_view path);
+std::expected<AssetData, std::string> LoadAsset(std::string_view path);
+std::expected<AssetData, std::string> LoadIntegralAsset(std::string_view path);
 
 #ifdef UNPACKED_MPQS
 using MpqArchiveT = std::string;
@@ -316,7 +314,7 @@ extern bool HasHellfireMpq;
 extern bool IsAssetIntegrityViolated;
 
 /**
- * @brief Returns true if any loose-file override root contains logic assets (*.lua, *.tsv, *.sol).
+ * @brief Returns true if any loose-file override root contains loadable logic assets (*.lua, *.tsv, *.sol).
  *
  * Unlike `IsAssetIntegrityViolated`, which is only set once an overridden logic asset has actually
  * been loaded, this scans the override directories directly. This catches lazily loaded assets
@@ -330,6 +328,17 @@ void LoadGameArchives();
 void LoadHellfireArchives();
 void UnloadModArchives();
 void LoadModArchives(std::span<const std::string_view> modnames);
+
+/**
+ * @brief Reads the `manifest.ini` of a discovered (not necessarily active) mod by name.
+ *
+ * Used to surface mod metadata (name, description, ...) in the settings UI for every mod,
+ * including inactive and loose-directory ones. Returns a default-constructed manifest when
+ * the mod has no manifest or cannot be read. Bypasses the override-capable `FindAsset`
+ * pipeline: for a loose mod it reads `mods/<name>/manifest.ini` from disk; for a packed mod
+ * it reads from the mod's own archive.
+ */
+[[nodiscard]] ModManifest ReadModManifestByName(std::string_view name);
 
 #ifdef BUILD_TESTING
 [[nodiscard]] inline bool HaveMainData() { return MpqArchives.find(MainMpqPriority) != MpqArchives.end(); }
